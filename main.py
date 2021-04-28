@@ -11,12 +11,15 @@ from http.client import InvalidURL
 from ssl import _create_unverified_context
 import os
 from os import system, name 
+import requests
 
 
-pages_found = 0
-pages_visited = 0
+pages_found = 0 # This counts how many pages were discovered in links on crawled pages, including duplicates.
+pages_visited = 0 # This counts how many pages were crawled by Arachnid.
 
-discovered_pages_list = []
+discovered_pages_list = [] # This keeps track of all pages discovered in links on crawled pages.
+pages_list_404 = [] # This keeps track of all pages that return 404 errors.
+pages_list_403 = [] # This keeps track of all pages that return 403 errors.
 
 
 # Define the funtion that will be used to clear the screen
@@ -27,9 +30,8 @@ def clear():
         system('clear')
 
 
+# Locates links in pages
 class AnchorParser(HTMLParser):
-    "Basic HTML parser that gathers a set of all href values in a webpage by targetting the anchor tag"
-
     def __init__(self, baseURL = ""):
         """Constructor for AnchorParser
         Args:
@@ -126,12 +128,27 @@ class MyWebCrawler(object):
     def getVisited(self):
         return self.visited
 
+
+def get_url_status(urls):
+    for url in urls:
+        try:
+            print("Testing: " + url)
+            r = requests.head(url)
+            print(url + " Status: " + str(r.status_code) + "\n")
+            if (r.status_code == 404):
+                global pages_list_404
+                pages_list_404.append (url)
+            elif (r.status_code == 403):
+                pages_list_403 += url
+        except Exception as e:
+            print("Failed to connect: " + str(e))
+
+ 
+
 site_to_test = input("Please enter a site to crawl: ")
 max_crawl = input("Please enter a maximum number of pages to crawl: ")
 
 crawler = MyWebCrawler(site_to_test, maxCrawl=int(max_crawl))
-
-print("Crawling site")
 
 crawler.crawl()
 
@@ -142,23 +159,38 @@ clear()
 print("Crawl complete")
 input("") # Wait for the user to press enter before continuing
 
-while True:
+while True: # Run forever in a loop until the user exits
     clear()
     print("Please select an option")
     print("0. Exit")
-    print("1. View visited domains")
-    print("2. View discovered domains")
+    print("1. View visited pages")
+    print("2. View discovered pages")
     print("3. View crawl statistics")
+    print("4. Check status codes of discovered pages")
     selection = int(input("Selection: "))
 
     clear()
-    if (selection == 1):
-        print("The following pages were visited: " + format(crawler.getVisited()))
+    if (selection == 0):
+        break # Break the loop and exit
+    elif (selection == 1):
+        print(format(crawler.getVisited())) # Print visited pages
     elif (selection == 2):
-        print(discovered_pages_list)
+        print(discovered_pages_list) # Print discovered pages
     elif (selection == 3):
         print("Pages visited: " + str(pages_visited))
         print("Pages found: " + str(len(discovered_pages_list)))
+    elif (selection == 4):
+        get_url_status(discovered_pages_list)
+        clear()
+        if (len(pages_list_404) > 0):
+            print("404 pages: " + str(pages_list_404))
+        else:
+            print("No pages returned 404 errors!")
+
+        if (len(pages_list_403) > 0):
+            print("404 pages: " + str(pages_list_403))
+        else:
+            print("No pages returned 403 errors!")
     else:
         print("Error: Invalid selection")
     

@@ -16,6 +16,8 @@ from os import system, name
 pages_found = 0
 pages_visited = 0
 
+discovered_pages_list = []
+
 
 # Define the funtion that will be used to clear the screen
 def clear():
@@ -65,7 +67,9 @@ class AnchorParser(HTMLParser):
                     if urlparse(absoluteUrl).scheme in ["http", "https"]: # Only follow links that use HTTP or HTTPS
                         if (urlparse(site_to_test).netloc in str(absoluteUrl)): # Only follow links on the same domain as the initial page
                             global pages_found
+                            global discovered_pages_list
                             pages_found = pages_found + 1
+                            discovered_pages_list += [absoluteUrl]
                             self.pageLinks.add(absoluteUrl)
 
 
@@ -88,13 +92,14 @@ class MyWebCrawler(object):
         while(len(urlsToParse) > 0 and len(self.visited) < self.max):
             # Get the next URL to visit and remove it from the set
             nextUrl = urlsToParse.pop()
-            # Skip the next URL if it has already been visited
             global pages_visited
             global pages_found
             pages_visited = pages_visited + 1
             clear()
             print("Pages visited: " + str(pages_visited))
             print("Pages found: " + str(pages_found))
+
+            # Skip the next URL if it has already been visited
             if nextUrl not in self.visited:
                 # Mark the next URL as visited
                 self.visited.add(nextUrl)
@@ -119,11 +124,6 @@ class MyWebCrawler(object):
             return set()
 
     def getVisited(self):
-        """Returns the set of URLs visited
-        Note: Will include urls that raised HTTPError and InvalidURL
-        Returns:
-            set: All URLs visited/parsed
-        """
         return self.visited
 
 site_to_test = input("Please enter a site to crawl: ")
@@ -135,24 +135,30 @@ print("Crawling site")
 
 crawler.crawl()
 
+# Remove duplicates in 'discovered pages' list
+discovered_pages_list = list(dict.fromkeys(discovered_pages_list))
+
+clear()
+print("Crawl complete")
+input("") # Wait for the user to press enter before continuing
 
 while True:
     clear()
-
-    print("Crawl complete. What would you like to do next?")
+    print("Please select an option")
+    print("0. Exit")
     print("1. View visited domains")
     print("2. View discovered domains")
-    print("3. View statistics")
+    print("3. View crawl statistics")
     selection = int(input("Selection: "))
 
     clear()
     if (selection == 1):
-        print("The following sites were visited:\n{}".format(crawler.getVisited()))
+        print("The following pages were visited: " + format(crawler.getVisited()))
     elif (selection == 2):
-        print("Sorry, this feature has not yet been implemented.")
+        print(discovered_pages_list)
     elif (selection == 3):
         print("Pages visited: " + str(pages_visited))
-        print("Pages found: " + str(pages_found))
+        print("Pages found: " + str(len(discovered_pages_list)))
     else:
         print("Error: Invalid selection")
     

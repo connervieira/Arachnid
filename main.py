@@ -12,14 +12,14 @@ from ssl import _create_unverified_context
 import os
 from os import system, name 
 import requests
+import json
 
 
 pages_found = 0 # This counts how many pages were discovered in links on crawled pages, including duplicates.
 pages_visited = 0 # This counts how many pages were crawled by Arachnid.
 
 discovered_pages_list = [] # This keeps track of all pages discovered in links on crawled pages.
-pages_list_404 = [] # This keeps track of all pages that return 404 errors.
-pages_list_403 = [] # This keeps track of all pages that return 403 errors.
+page_error_list = {} # This will be used to keep track of all pages that return errors (404, 403, etc.)
 
 
 # Define the funtion that will be used to clear the screen
@@ -33,31 +33,19 @@ def clear():
 # Locates links in pages
 class AnchorParser(HTMLParser):
     def __init__(self, baseURL = ""):
-        """Constructor for AnchorParser
-        Args:
-            baseURL (str): Base URL for the HTML content
-        Returns:
-            None
-        """
         # Parent class constructor
         HTMLParser.__init__(self)
+
         # Set of all hyperlinks in the web page
         self.pageLinks = set()
+
         # The base url of the webpage to parse
         self.baseURL = baseURL
 
     def getLinks(self):
-        """Return the set of absolute URLs in the HTML content
-        Returns:
-            set: Absolute URLs found in HTML content
-        """
         return self.pageLinks
 
     def handle_starttag(self, tag, attrs):
-        """Override handle_starttag to target anchor tags
-        Returns:
-            None
-        """
         # Identify anchor tags
         if tag == "a":
             for(attribute, value) in attrs:
@@ -74,21 +62,26 @@ class AnchorParser(HTMLParser):
                             discovered_pages_list += [absoluteUrl]
                             self.pageLinks.add(absoluteUrl)
 
+                            r = requests.head(absoluteUrl, allow_redirects = True)
+                            if (r.status_code != 200):
+                                global page_error_list
+
+                                # Initialize page error list if it hasn't been already
+                                if r.status_code not in page_error_list:
+                                    page_error_list[r.status_code] = {}
+                                if self.baseURL not in page_error_list [r.status_code]: page_error_list[r.status_code][self.baseURL] = []
+                                
+                                # Save the errors to the list
+                                page_error_list[r.status_code][self.baseURL].append(absoluteUrl)
+
 
 class MyWebCrawler(object):
-    "Basic Web Crawler using only Python Standard Libraries"
-
     def __init__(self, url, maxCrawl=10):
         self.visited = set() # To track all visited urls
         self.starterUrl = url
         self.max = maxCrawl
 
     def crawl(self):
-        """Tracks URLs visited in a set in order to crawl through different sites
-        Will only crawl through as many URLs as declared with 'maxCrawl' when instantiating MyWebCrawler
-        Returns:
-            None
-        """
         urlsToParse = {self.starterUrl}
         # While there are still more URLs to parse and we have not exceeded the crawl limit
         while(len(urlsToParse) > 0 and len(self.visited) < self.max):
@@ -127,23 +120,8 @@ class MyWebCrawler(object):
 
     def getVisited(self):
         return self.visited
-
-
-def get_url_status(urls):
-    for url in urls:
-        try:
-            print("Testing: " + url)
-            r = requests.head(url)
-            print(url + " Status: " + str(r.status_code) + "\n")
-            if (r.status_code == 404):
-                global pages_list_404
-                pages_list_404.append (url)
-            elif (r.status_code == 403):
-                pages_list_403 += url
-        except Exception as e:
-            print("Failed to connect: " + str(e))
-
  
+
 
 site_to_test = input("Please enter a site to crawl: ")
 max_crawl = input("Please enter a maximum number of pages to crawl: ")
@@ -180,17 +158,11 @@ while True: # Run forever in a loop until the user exits
         print("Pages visited: " + str(pages_visited))
         print("Pages found: " + str(len(discovered_pages_list)))
     elif (selection == 4):
-        get_url_status(discovered_pages_list)
-        clear()
-        if (len(pages_list_404) > 0):
-            print("404 pages: " + str(pages_list_404))
-        else:
-            print("No pages returned 404 errors!")
+        print("Please enter an error code to check for")
+        selection = int(input("Selection: "))
+        
+        print(json.dumps(page_error_list[selection], sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
 
-        if (len(pages_list_403) > 0):
-            print("404 pages: " + str(pages_list_403))
-        else:
-            print("No pages returned 403 errors!")
     else:
         print("Error: Invalid selection")
     

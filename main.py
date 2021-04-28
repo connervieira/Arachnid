@@ -30,6 +30,7 @@ def clear():
         system('clear')
 
 
+
 # Locates links in pages
 class AnchorParser(HTMLParser):
     def __init__(self, baseURL = ""):
@@ -107,7 +108,8 @@ class MyWebCrawler(object):
     def parse(self, url):
         try:
             # Open the URL, read content, decode content
-            htmlContent = urlopen(url, context=_create_unverified_context()).read().decode()
+            url_response = urlopen(url, context=_create_unverified_context())
+            htmlContent = url_response.read().decode()
             # Initiate the AnchorParser object
             parser = AnchorParser(url)
             # Feed in the HTML content to our AnchorParser object
@@ -158,10 +160,13 @@ while True: # Run forever in a loop until the user exits
         print("Pages visited: " + str(pages_visited))
         print("Pages found: " + str(len(discovered_pages_list)))
     elif (selection == 4):
-        print("Please enter an error code to check for")
+        print("Please enter an error code to check for. Enter 0 to show all.")
         selection = int(input("Selection: "))
         
-        print(json.dumps(page_error_list[selection], sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
+        if (selection == 0):
+            print(json.dumps(page_error_list, sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
+        else:
+            print(json.dumps(page_error_list[selection], sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
 
     else:
         print("Error: Invalid selection")

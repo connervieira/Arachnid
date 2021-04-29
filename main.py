@@ -110,12 +110,17 @@ class MyWebCrawler(object):
             # Open the URL, read content, decode content
             url_response = urlopen(url, context=_create_unverified_context())
             htmlContent = url_response.read().decode()
-            # Initiate the AnchorParser object
-            parser = AnchorParser(url)
-            # Feed in the HTML content to our AnchorParser object
-            parser.feed(htmlContent)
-            # The AnchorParser object has a set of absolute URLs that can be returned
-            return parser.getLinks()
+            
+            if (url_response.geturl() == url):
+                # Initiate the AnchorParser object
+                parser = AnchorParser(url)
+                # Feed in the HTML content to our AnchorParser object
+                parser.feed(htmlContent)
+                # The AnchorParser object has a set of absolute URLs that can be returned
+                return parser.getLinks()
+            else:
+                print("Redirect detected, not logging page")
+            
         except (HTTPError, InvalidURL, UnicodeDecodeError):
             # In the case we get any HTTP error
             return set()
@@ -166,7 +171,10 @@ while True: # Run forever in a loop until the user exits
         if (selection == 0):
             print(json.dumps(page_error_list, sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
         else:
-            print(json.dumps(page_error_list[selection], sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
+            if (page_error_list[selection] != None):
+                print(json.dumps(page_error_list[selection], sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
+            else:
+                print("No pages returned this error!")
 
     else:
         print("Error: Invalid selection")

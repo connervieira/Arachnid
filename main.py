@@ -48,6 +48,7 @@ class AnchorParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         # Identify anchor tags
+        global page_error_list
         if tag == "a":
             for(attribute, value) in attrs:
                 # Anchor tags may have more than 1 attribute, but handle_starttag will only target href
@@ -68,13 +69,32 @@ class AnchorParser(HTMLParser):
                                 global page_error_list
 
                                 # Initialize page error list if it hasn't been already
-                                if r.status_code not in page_error_list:
-                                    page_error_list[r.status_code] = {}
-                                if self.baseURL not in page_error_list [r.status_code]: page_error_list[r.status_code][self.baseURL] = []
+                                if str(r.status_code) not in page_error_list:
+                                    page_error_list[str(r.status_code)] = {}
+                                if self.baseURL not in page_error_list[str(r.status_code)]:
+                                    page_error_list[str(r.status_code)][self.baseURL] = []
                                 
                                 # Save the errors to the list if they haven't yet been recorded
-                                if absoluteUrl not in page_error_list[r.status_code][self.baseURL]:
-                                    page_error_list[r.status_code][self.baseURL].append(absoluteUrl)
+                                if absoluteUrl not in page_error_list[str(r.status_code)][self.baseURL]:
+                                    page_error_list[str(r.status_code)][self.baseURL].append(absoluteUrl)
+        elif tag == "html":
+            lang_is_set = False
+            for(attribute, value) in attrs:
+                if attribute == "lang":
+                    lang_is_set = True
+            if lang_is_set == False:
+
+                # Initialize page error list if it hasn't been already
+                if "no-lang" not in page_error_list:
+                    page_error_list["no-lang"] = {}
+
+                if self.baseURL not in page_error_list["no-lang"]:
+                    page_error_list["no-lang"][self.baseURL] = []
+                                
+                # Save the errors to the list if they haven't yet been recorded
+                absoluteUrl = self.baseURL
+                if absoluteUrl not in page_error_list["no-lang"][self.baseURL]:
+                    page_error_list["no-lang"][self.baseURL] = {}
 
 
 class MyWebCrawler(object):
@@ -153,7 +173,8 @@ while True: # Run forever in a loop until the user exits
     print("1. View visited pages")
     print("2. View discovered pages")
     print("3. View crawl statistics")
-    print("4. Check status codes of discovered pages")
+    print("4. Check raw status codes of discovered pages")
+    print("5. Check human-readable website issues")
     selection = int(input("Selection: "))
 
     clear()
@@ -168,15 +189,45 @@ while True: # Run forever in a loop until the user exits
         print("Pages found: " + str(len(discovered_pages_list)))
     elif (selection == 4):
         print("Please enter an error code to check for. Enter 0 to show all.")
-        selection = int(input("Selection: "))
+        selection = input("Selection: ")
         
-        if (selection == 0):
+        if (selection == "0"):
             print(json.dumps(page_error_list, sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
         else:
-            if (page_error_list[selection] != None):
-                print(json.dumps(page_error_list[selection], sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
+            if (str(selection) in page_error_list):
+                print(json.dumps(page_error_list[str(selection)], sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
             else:
                 print("No pages returned this error!")
+
+    elif (selection == 5):
+        print("0. Exit")
+        print("1. View 'Page Not Found' errors")
+        print("2. View 'Permission Denied' errors")
+        print("3. View 'No Language Defined' errors")
+        selection = input("Selection: ")
+        
+        if (selection == "0"):
+            pass
+        elif (selection == "1"):
+            clear()
+            for page in page_error_list["404"]:
+                print(page + ":")
+                for errors in page_error_list["404"][page]:
+                    print("\t" + errors)
+        elif (selection == "2"):
+            clear()
+            for page in page_error_list["403"]:
+                print(page + ":")
+                for errors in page_error_list["403"][page]:
+                    print("\t" + errors)
+
+        elif (selection == "3"):
+            clear()
+            for page in page_error_list["no-lang"]:
+                print(page)
+
+        else:
+            print("Error: Invalid selection")
 
     else:
         print("Error: Invalid selection")

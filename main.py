@@ -13,6 +13,7 @@ import os
 from os import system, name 
 import requests
 import json
+import validators
 
 
 pages_found = 0 # This counts how many pages were discovered in links on crawled pages, including duplicates.
@@ -95,7 +96,6 @@ class AnchorParser(HTMLParser):
 
         elif tag == "img":
             alt_is_set = False # This is a placeholder variable that will be changed to true if this img tag has an 'alt' attribute
-            print(attrs)
             for(attribute, value) in attrs:
                 if attribute == "alt":
                     alt_is_set = True
@@ -172,9 +172,15 @@ class MyWebCrawler(object):
         return self.visited
  
 
+while True:
+    site_to_test = input("Please enter a page to crawl: ")
+    if validators.url(site_to_test) == True:
+        break
+    else:
+        print("Error: The page you entered isn't a valid URL")
 
-site_to_test = input("Please enter a site to crawl: ")
-max_crawl = input("Please enter a maximum number of pages to crawl: ")
+
+max_crawl = int(input("Please enter a maximum number of pages to crawl: "))
 
 crawler = MyWebCrawler(site_to_test, maxCrawl=int(max_crawl))
 
@@ -196,18 +202,28 @@ while True: # Run forever in a loop until the user exits
     print("3. View crawl statistics")
     print("4. Check raw status codes of discovered pages")
     print("5. Check human-readable website issues")
-    selection = int(input("Selection: "))
+
+    while True: # Run forever until the user enters something
+        selection = input("Selection: ")
+        if selection != None and selection != "":
+            selection = int(selection)
+            break
+        else:
+            print("Error: Please enter a number to select which menu you'd like to open")
 
     clear()
     if (selection == 0):
         break # Break the loop and exit
     elif (selection == 1):
         print(format(crawler.getVisited())) # Print visited pages
+        input("") # Wait for the user to press enter before continuing
     elif (selection == 2):
         print(discovered_pages_list) # Print discovered pages
+        input("") # Wait for the user to press enter before continuing
     elif (selection == 3):
         print("Pages visited: " + str(pages_visited))
         print("Pages found: " + str(len(discovered_pages_list)))
+        input("") # Wait for the user to press enter before continuing
     elif (selection == 4):
         print("Please enter an error code to check for. Enter 0 to show all.")
         selection = input("Selection: ")
@@ -219,45 +235,67 @@ while True: # Run forever in a loop until the user exits
                 print(json.dumps(page_error_list[str(selection)], sort_keys=True, indent=4)) # Print the array in a visually appealing, easy to understand way.
             else:
                 print("No pages returned this error!")
+        input("") # Wait for the user to press enter before continuing
 
     elif (selection == 5):
-        print("0. Exit")
-        print("1. View 'Page Not Found' errors")
-        print("2. View 'Permission Denied' errors")
-        print("3. View 'No Language Defined' errors")
-        print("4. View 'No Image Alt Text' errors")
-        selection = input("Selection: ")
+        while True:
+            clear()
+            print("0. Exit")
+            print("1. View 'Page Not Found' errors")
+            print("2. View 'Permission Denied' errors")
+            print("3. View 'No Language Defined' errors")
+            print("4. View 'No Image Alt Text' errors")
+            selection = input("Selection: ")
         
-        if (selection == "0"):
-            pass
-        elif (selection == "1"):
-            clear()
-            for page in page_error_list["404"]:
-                print(page + ":")
-                for errors in page_error_list["404"][page]:
-                    print("\t" + errors)
-        elif (selection == "2"):
-            clear()
-            for page in page_error_list["403"]:
-                print(page + ":")
-                for errors in page_error_list["403"][page]:
-                    print("\t" + errors)
+            if (selection == "0"):
+                break
+            elif (selection == "1"):
+                clear()
+                if "404" in page_error_list:
+                    for page in page_error_list["404"]:
+                        print(page + ":")
+                        for errors in page_error_list["404"][page]:
+                           print("\t" + errors)
+                else:
+                    print("No pages returned 404 errors!")
+                input("") # Wait for the user to press enter before continuing
+            elif (selection == "2"):
+                clear()
+                if "403" in page_error_list:
+                    for page in page_error_list["403"]:
+                        print(page + ":")
+                        for errors in page_error_list["403"][page]:
+                            print("\t" + errors)
+                else:
+                    print("No files returned 403 errors!")
+                input("") # Wait for the user to press enter before continuing
+    
+            elif (selection == "3"):
+                clear()
+                if "no-lang" in page_error_list:
+                    for page in page_error_list["no-lang"]:
+                        print(page)
+                else:
+                    print("All scanned pages had properly configured HTML language data!")
+                input("") # Wait for the user to press enter before continuing
 
-        elif (selection == "3"):
-            clear()
-            for page in page_error_list["no-lang"]:
-                print(page)
+            elif (selection == "4"):
+                clear()
+                if "no-alt" in page_error_list:
+                    for page in page_error_list["no-alt"]:
+                        print(page)
+                        print("\t" + str(len(page_error_list["no-alt"][page])) + "\n")
+                else:
+                    print("All scanned images had properly configured alt-text!")
+                input("") # Wait for the user to press enter before continuing
 
-        elif (selection == "4"):
-            clear()
-            for page in page_error_list["no-alt"]:
-                print(page)
-                print("\t" + str(len(page_error_list["no-alt"][page])) + "\n")
-
-        else:
-            print("Error: Invalid selection")
+            else:
+                clear()
+                print("Error: Invalid selection")
+                input("") # Wait for the user to press enter before continuing
+        
 
     else:
+        clear()
         print("Error: Invalid selection")
-    
-    input("") # Wait for the user to press enter before continuing
+        input("") # Wait for the user to press enter before continuing

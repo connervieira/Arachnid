@@ -96,6 +96,25 @@ class AnchorParser(HTMLParser):
                 if absoluteUrl not in page_error_list["no-lang"][self.baseURL]:
                     page_error_list["no-lang"][self.baseURL] = {}
 
+        elif tag == "img":
+            alt_is_set = False
+            for(attribute, value) in attrs:
+                if attribute == "alt":
+                    alt_is_set = True
+            if alt_is_set == False:
+
+                # Initialize page error list if it hasn't been already
+                if "no-alt" not in page_error_list:
+                    page_error_list["no-alt"] = {}
+
+                if self.baseURL not in page_error_list["no-alt"]:
+                    page_error_list["no-alt"][self.baseURL] = []
+                                
+                # Save the errors to the list if they haven't yet been recorded
+                absoluteUrl = self.baseURL
+                if absoluteUrl not in page_error_list["no-alt"][self.baseURL]:
+                    page_error_list["no-alt"][self.baseURL] = {}
+
 
 class MyWebCrawler(object):
     def __init__(self, url, maxCrawl=10):
@@ -204,6 +223,7 @@ while True: # Run forever in a loop until the user exits
         print("1. View 'Page Not Found' errors")
         print("2. View 'Permission Denied' errors")
         print("3. View 'No Language Defined' errors")
+        print("4. View 'No Image Alt Text' errors")
         selection = input("Selection: ")
         
         if (selection == "0"):
@@ -224,6 +244,11 @@ while True: # Run forever in a loop until the user exits
         elif (selection == "3"):
             clear()
             for page in page_error_list["no-lang"]:
+                print(page)
+
+        elif (selection == "4"):
+            clear()
+            for page in page_error_list["no-alt"]:
                 print(page)
 
         else:

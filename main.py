@@ -251,6 +251,7 @@ while True: # Run forever in a loop until the user exits
                 break
             elif (selection == "1"):
                 clear()
+                print("Pages with 404 errors")
                 if "404" in page_error_list:
                     for page in page_error_list["404"]:
                         print(page + ":")
@@ -261,6 +262,7 @@ while True: # Run forever in a loop until the user exits
                 input("") # Wait for the user to press enter before continuing
             elif (selection == "2"):
                 clear()
+                print("Pages with 403 errors:")
                 if "403" in page_error_list:
                     for page in page_error_list["403"]:
                         print(page + ":")
@@ -272,6 +274,7 @@ while True: # Run forever in a loop until the user exits
     
             elif (selection == "3"):
                 clear()
+                print("Pages missing HTML language data:")
                 if "no-lang" in page_error_list:
                     for page in page_error_list["no-lang"]:
                         print(page)
@@ -281,6 +284,7 @@ while True: # Run forever in a loop until the user exits
 
             elif (selection == "4"):
                 clear()
+                print("Missing alt text instances:")
                 if "no-alt" in page_error_list:
                     for page in page_error_list["no-alt"]:
                         print(page)

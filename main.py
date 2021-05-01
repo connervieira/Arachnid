@@ -1,4 +1,4 @@
-
+# Arachnid
 # V0.1
 # V0LT
 # Licensed under the GPLv3
@@ -30,7 +30,6 @@ def clear():
         system('clear')
 
 
-
 # Locates links in pages
 class AnchorParser(HTMLParser):
     def __init__(self, baseURL = ""):
@@ -47,13 +46,9 @@ class AnchorParser(HTMLParser):
         return self.pageLinks
 
     def handle_starttag(self, tag, attrs):
-        # Identify anchor tags
         global page_error_list
         if tag == "a":
             for(attribute, value) in attrs:
-                # Anchor tags may have more than 1 attribute, but handle_starttag will only target href
-                # Attribute examples: href, target, rel, etc
-                # Attribute list can be found at: https://www.w3schools.com/tags/tag_a.asp
                 if attribute == "href":
                     absoluteUrl = urljoin(self.baseURL, value)
                     if urlparse(absoluteUrl).scheme in ["http", "https"]: # Only follow links that use HTTP or HTTPS
@@ -71,14 +66,16 @@ class AnchorParser(HTMLParser):
                                 # Initialize page error list if it hasn't been already
                                 if str(r.status_code) not in page_error_list:
                                     page_error_list[str(r.status_code)] = {}
+
                                 if self.baseURL not in page_error_list[str(r.status_code)]:
                                     page_error_list[str(r.status_code)][self.baseURL] = []
                                 
                                 # Save the errors to the list if they haven't yet been recorded
                                 if absoluteUrl not in page_error_list[str(r.status_code)][self.baseURL]:
                                     page_error_list[str(r.status_code)][self.baseURL].append(absoluteUrl)
+
         elif tag == "html":
-            lang_is_set = False
+            lang_is_set = False # This is a placeholder variable that will be changed to true if this HTML tag has a 'lang' attribute
             for(attribute, value) in attrs:
                 if attribute == "lang":
                     lang_is_set = True
@@ -97,23 +94,28 @@ class AnchorParser(HTMLParser):
                     page_error_list["no-lang"][self.baseURL] = {}
 
         elif tag == "img":
-            alt_is_set = False
+            alt_is_set = False # This is a placeholder variable that will be changed to true if this img tag has an 'alt' attribute
+            print(attrs)
             for(attribute, value) in attrs:
                 if attribute == "alt":
                     alt_is_set = True
             if alt_is_set == False:
+                for(attribute, value) in attrs:
+                    if attribute == "src":
+                        image_link = value
+                    
 
-                # Initialize page error list if it hasn't been already
-                if "no-alt" not in page_error_list:
-                    page_error_list["no-alt"] = {}
+                        # Initialize page error list if it hasn't been already
+                        if "no-alt" not in page_error_list:
+                            page_error_list["no-alt"] = {}
 
-                if self.baseURL not in page_error_list["no-alt"]:
-                    page_error_list["no-alt"][self.baseURL] = []
+                        if self.baseURL not in page_error_list["no-alt"]:
+                            page_error_list["no-alt"][self.baseURL] = []
                                 
-                # Save the errors to the list if they haven't yet been recorded
-                absoluteUrl = self.baseURL
-                if absoluteUrl not in page_error_list["no-alt"][self.baseURL]:
-                    page_error_list["no-alt"][self.baseURL] = {}
+                        # Save the errors to the list if they haven't yet been recorded
+                        absoluteUrl = self.baseURL
+                        if image_link not in page_error_list["no-alt"][self.baseURL]:
+                            page_error_list["no-alt"][self.baseURL].append(image_link)
 
 
 class MyWebCrawler(object):
@@ -250,6 +252,7 @@ while True: # Run forever in a loop until the user exits
             clear()
             for page in page_error_list["no-alt"]:
                 print(page)
+                print("\t" + str(len(page_error_list["no-alt"][page])) + "\n")
 
         else:
             print("Error: Invalid selection")

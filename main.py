@@ -1,4 +1,4 @@
-# Arachnid
+
 # V0.1
 # V0LT
 # Licensed under the GPLv3
@@ -64,7 +64,7 @@ class AnchorParser(HTMLParser):
                             self.pageLinks.add(absoluteUrl)
 
                             r = requests.head(absoluteUrl, allow_redirects = True)
-                            if (r.status_code != 200):
+                            if (r.status_code != 200): # If the returned status code is anything other than 200, log it.
                                 global page_error_list
 
                                 # Initialize page error list if it hasn't been already
@@ -72,8 +72,9 @@ class AnchorParser(HTMLParser):
                                     page_error_list[r.status_code] = {}
                                 if self.baseURL not in page_error_list [r.status_code]: page_error_list[r.status_code][self.baseURL] = []
                                 
-                                # Save the errors to the list
-                                page_error_list[r.status_code][self.baseURL].append(absoluteUrl)
+                                # Save the errors to the list if they haven't yet been recorded
+                                if absoluteUrl not in page_error_list[r.status_code][self.baseURL]:
+                                    page_error_list[r.status_code][self.baseURL].append(absoluteUrl)
 
 
 class MyWebCrawler(object):
@@ -103,7 +104,8 @@ class MyWebCrawler(object):
                 # and parse any new URLs from the HTML content
                 # any new URLs found will be appended to the urlsToParse set
                 # print("Parsing: {}".format(nextUrl))
-                urlsToParse |= self.parse(nextUrl)
+                if (self.parse(nextUrl) is not None and urlsToParse is not None):
+                    urlsToParse |= self.parse(nextUrl)
 
     def parse(self, url):
         try:

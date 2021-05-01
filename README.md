@@ -28,6 +28,10 @@ Arachnid isn't a third party service. When you run an Arachnid scan, all of the 
 
 Since Arachnid is written using generic networking libraries, it isn't dependent on any particular configuration. It has no problems being run locally on webservers completely isolated from the internet, or hundreds of miles away on a distant computer.
 
+### Accessibility
+
+Arachnid is capable of detecting accessibility issues that normal users might not see. Pages containing images without alt text or improperly configured language data can be logged and addressed.
+
 
 ## Special Thanks
 

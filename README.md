@@ -32,6 +32,14 @@ Since Arachnid is written using generic networking libraries, it isn't dependent
 
 Arachnid is capable of detecting accessibility issues that normal users might not see. Pages containing images without alt text or improperly configured language data can be logged and addressed.
 
+### Command Line Interface
+
+Arachnid is completely command line based, meaning you can run it directly on the webserver you want to test.
+
+### Well Commented
+
+The Arachnid source code is well commented, making it easy to modify it to fit your own needs.
+
 
 ## Special Thanks
 

@@ -22,7 +22,7 @@ Unlike nearly all other website diagnostic tools, Archnid is 100% free, both in 
 
 ### Self Hosted
 
-Arachnid isn't a third party service. When you run an Arachnid scan, all of the processing is being done directly between your server and Arachnid instance. You don't have to worry about your site being indexed without your consent, or your personally information being collected.
+Arachnid isn't a third party service. When you run an Arachnid scan, all of the processing is being done directly between your server and Arachnid instance. You don't have to worry about your site being indexed without your consent, or your personal information being collected.
 
 ### Versatile
 
@@ -34,7 +34,7 @@ Arachnid is capable of detecting accessibility issues that normal users might no
 
 ### Command Line Interface
 
-Arachnid is completely command line based, meaning you can run it directly on the webserver you want to test.
+Arachnid is completely command line based, meaning you can run it directly on the webserver you want to test for the best possible performance.
 
 ### Well Commented
 
@@ -43,4 +43,4 @@ The Arachnid source code is well commented, making it easy to modify it to fit y
 
 ## Special Thanks
 
-I'd like to thank Brenda Maya for writing the code that powers the web crawler built into Arachnid. However, it should be made clear that she doesn't necessarily endorse Arachnid or V0LT itself, and is simply the original developer of the code. The code has been heavily modified. You can find her original code on her GitHub at [bmaya1](https://github.com/bmaya1)
+I'd like to thank Brenda Maya for writing the majority of the code that powers the web crawler built into Arachnid. However, it should be made clear that she doesn't necessarily endorse Arachnid or V0LT itself, and is simply the original developer of the code. The code has been heavily modified. You can find her original code on her GitHub at [bmaya1](https://github.com/bmaya1)

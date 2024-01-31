@@ -18,7 +18,7 @@ On a fast internet connection, Arachnid has no problem processing dozens of web 
 
 ### Free
 
-Unlike nearly all other website diagnostic tools, Archnid is 100% free, both in terms of cost, and freedom.
+Unlike nearly all other website diagnostic tools, Arachnid is 100% free, both in terms of cost, and freedom.
 
 ### Self Hosted
 
@@ -26,7 +26,7 @@ Arachnid isn't a third party service. When you run an Arachnid scan, all of the 
 
 ### Versatile
 
-Since Arachnid is written using generic networking libraries, it isn't dependent on any particular configuration. It has no problems being run locally on webservers completely isolated from the internet, or hundreds of miles away on a distant computer.
+Since Arachnid is written using generic networking libraries, it isn't dependent on any particular configuration. It has no problems being run locally on web-servers completely isolated from the internet, or hundreds of miles away on a distant computer.
 
 ### Accessibility
 
@@ -34,7 +34,7 @@ Arachnid is capable of detecting accessibility issues that normal users might no
 
 ### Command Line Interface
 
-Arachnid is completely command line based, meaning you can run it directly on the webserver you want to test.
+Arachnid is completely command line based, meaning you can run it directly on the web-server you want to test.
 
 ### Well Commented
 

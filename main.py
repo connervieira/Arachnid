@@ -1,5 +1,5 @@
 # Arachnid
-# V0.1
+# V0.2
 # V0LT
 # Licensed under the GPLv3
 
